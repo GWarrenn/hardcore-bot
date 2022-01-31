@@ -3,6 +3,7 @@ import random
 import json
 from datetime import date
 import tweepy
+import os
 
 ## google tools
 
@@ -23,25 +24,15 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 spreadsheet_id = '1C588DhrV-jd3CGvNgRFy8_jUx_wLk5NaFl1L7sOepCI'
 sheet_range_name = 'Sheet1!A2:H'
 
-try:
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-except:
-    creds = None
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-else:
-    exit
+creds_json = {"token" : os.environ["GOOGLE_TOKEN"], 
+              "refresh_token": os.environ["GOOGLE_REFRESH_TOKEN"], 
+              "token_uri": "https://oauth2.googleapis.com/token", 
+              "client_id": os.environ["GOOGLE_CLIENT_ID"], 
+              "client_secret": os.environ["GOOGLE_CLIENT_SECRET"], 
+              "scopes": ["https://www.googleapis.com/auth/spreadsheets"], 
+              "expiry": "2022-01-20T23:43:54.991262Z"}
+
+creds = Credentials.from_authorized_user_info(creds_json, SCOPES)
 
 service = build('sheets', 'v4', credentials=creds)
 
@@ -56,11 +47,8 @@ values = result.get('values', [])
 ##
 ##############################################
 
-with open('twitter_creds.json') as json_file:
-    data = json.load(json_file)
-
-auth = tweepy.OAuthHandler(data['API Key'], data['API Key Secret'])
-auth.set_access_token(data['Access Token'], data['Access Token Secret'])
+auth = tweepy.OAuthHandler(os.environ["API_KEY"], os.environ["TWITTER_API_KEY"])
+auth.set_access_token(os.environ["TWITTER_ACCESS_TOKEN"], os.environ["TWITTER_ACCESS_TOKEN_SECRET"])
 
 api = tweepy.API(auth)
 
