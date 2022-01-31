@@ -1,0 +1,1 @@
+worker: python hardcore_bot.py
