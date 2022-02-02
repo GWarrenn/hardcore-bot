@@ -12,6 +12,8 @@ Stereogum slowly introduced me to more and more hardcore bands over the years as
 
 These descriptions are one of my favorite parts of the Stereogum, most of which come from the [monthly hardcore music roundup](https://www.stereogum.com/category/columns/let-the-roundup-begin/), which is a treasure trove of vivid descriptions of how the music makes Tom feel. Awhile back I started collecting some of my favorite of these quotes and saved them into a google doc. Next, I decided to share these quotes with the world by creating a Twitter bot hosted on Heroku that would pull the quotes from the Google sheet. 
 
-## Example:
+On the technical side of things, this project is actually very simple. I store the quotes in a google sheet that I manually update with my favorite quotes. In the future I may explore the viability of using this as a training corpus to more exhaustively comb through Stereogum's archives to find more gems. The [python](https://github.com/GWarrenn/hardcore-bot/blob/main/hardcore_bot.py) script simply authenticates with Google to connect and randomly select a specific quote, then authenticates with my a newly created Twitter account to push the quotes to Twitter using [Tweepy's](https://docs.tweepy.org/en/stable/) really intuitive and powerful capabilities. The code is hosted in a [Heroku](https://id.heroku.com/login) that is configured to execute the python code everyday at 12:00 PM ET using the [Advanced Scheduler](https://elements.heroku.com/addons/advanced-scheduler) Heroku add-on.
+
+## Live Twitter Feed:
 
 [![github-readme-twitter](https://github-readme-twitter.gazf.vercel.app/api?id=hardcorebot_&layout=wide)](https://github.com/gazf/github-readme-twitter)
