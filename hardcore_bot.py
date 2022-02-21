@@ -60,11 +60,17 @@ api = tweepy.API(auth)
 
 ## pick random entry -- but let's see if it's already been tweeted
 
-already_tweeted = 0
+already_tweeted = True
 
-while already_tweeted == 0:  
+while already_tweeted:  
     pick = random.randrange(0,len(values))
-    already_tweeted = values[pick][6]
+    print(values[pick][6]," | ",values[pick][2])
+
+    if values[pick][6] == '0':
+        already_tweeted = False
+        print(already_tweeted)
+        print(values[pick][2])
+        break
 
 ## send first tweet -- out of context hardcore quote
 
