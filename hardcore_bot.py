@@ -13,6 +13,16 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+def split_text_sentences(text):
+    text = text.replace(".",".<stop>")
+    text = text.replace("?","?<stop>")
+    text = text.replace("!","!<stop>")
+    text = text.replace("<prd>",".")
+    sentences = text.split("<stop>")
+    sentences = sentences[:-1]
+    sentences = [s.strip() for s in sentences]
+    return sentences
+
 ##############################################
 ##
 ## Google authentication
@@ -72,15 +82,51 @@ while already_tweeted:
         print(values[pick][2])
         break
 
-
 ## send first tweet -- out of context hardcore quote
 
-initial_tweet = api.update_status(values[pick][2])
+if len(values[pick][2]) <= 280:
+    initial_tweet = api.update_status(values[pick][2])
 
-## send follow up tweet with artist name + song name & link for context
+    ## send follow up tweet with artist name + song name & link for context
 
-folowup_tweet = api.update_status("Describing {} by {} | Link: {}".format(values[pick][1],values[pick][0],values[pick][3]),
+    folowup_tweet = api.update_status("Describing {} by {} | Link: {}".format(values[pick][1],values[pick][0],values[pick][3]),
                     in_reply_to_status_id=initial_tweet.id)
+
+else:
+    sentences = split_text_sentences(values[pick][2])
+
+    tweets = []
+
+    tweet = ""
+    count = 0
+    for sentence in sentences:
+        count += 1
+        if len(sentence) <= 280 and len(tweet) <= 280 and len(tweet + " " + sentence) <= 280:
+            if tweet == "":
+                tweet = tweet + sentence
+            else:
+                tweet = tweet + " " + sentence
+            if len(sentences) == count:
+                tweets.append(tweet)
+        else:
+            tweets.append(tweet)
+            tweet = ""
+    
+    ## send first tweet with character appropriate length
+
+    initial_tweet = api.update_status(tweets[0])
+
+    other_tweets = tweets.pop(0)
+
+    ## send follow-up tweets in thread
+
+    for tweet in other_tweets:
+        thread_tweet = api.update_status("🧵 "+tweet,in_reply_to_status_id=initial_tweet.id)
+
+    ## send last follow up tweet with artist name + song name & link for context
+
+    folowup_tweet = api.update_status("Describing {} by {} | Link: {}".format(values[pick][1],values[pick][0],values[pick][3]),
+                    in_reply_to_status_id=thread_tweet.id)
 
 ##############################################
 ##
